@@ -1,12 +1,16 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
-const App = props => {
+function App() {
+  const [count, setCount] = useState(0)
+
   return (
-    <div className="h-screen w-screen text-6xl flex justify-center align-center">Welcome to Foodie Fusion</div>
+    <>
+    <div className="text-3xl flex justify-center items-center h-screen w-screen">WELCOME TO FOODIE FUSION</div>
+    </>
   )
 }
-
-App.propTypes = {}
 
 export default App

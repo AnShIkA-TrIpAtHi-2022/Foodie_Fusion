@@ -1,6 +1,6 @@
 const  mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const {DB_NAME, mongoDBID} = require('./constants.js');
+const {DB_NAME, mongoDBID, PORT} = require('./constants.js');
 
 dotenv.config();
 
