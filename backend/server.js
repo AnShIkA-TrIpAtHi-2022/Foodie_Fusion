@@ -12,7 +12,7 @@ dotenv.config({
 })
 connectDB()
 .then(()=>{
-    app.listen((PORT || 4000),()=>{
+    app.listen((PORT || 3000),()=>{
         console.log(`Server is running at port : ${PORT}`)
         app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
@@ -26,3 +26,8 @@ connectDB()
 .catch((err)=>{
     console.log("MongoDB connection failed !!",err);
 })
+
+
+
+
+//npm run build in frontend to build depedencies
