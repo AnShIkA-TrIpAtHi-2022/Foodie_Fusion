@@ -3,16 +3,56 @@ const mongoose = require('mongoose')
 const { Schema } = mongoose;
 
 const OrderSchema = new Schema({
-    email: {
-        type: String,
-        required: true,
-        unique: true
+    id:{
+        type:ObjectId,
+        required:true
     },
-    order_data: {
-        type: Array,
-        required: true,
+    userId:{
+        type:ObjectId,
+        required:true
     },
+    restaurantId:{
+        type:ObjectId,
+        required:true
+    },
+    items:[{
+        menuId:{
+            type:ObjectId,
+            required:true
+        },
+        quantity:{
+            type:Number,
+            required:true
+        },
+        price:{
+            type:Number,
+            required:true
+        },
 
-});
+    }],
 
-module.exports = mongoose.model('order', OrderSchema)
+    totalAmount:{
+        type:Number,
+        required:true
+    },
+    status:{
+        type:String,
+        required:true
+    },
+    paymentId:{
+        type:ObjectId,
+        required:true
+    },
+    orderDate:{
+        type:Date,
+        default:Date.now
+    },
+    deliveryDate:{
+        type:Date,
+        default:Date.now
+    }
+
+    
+})
+
+module.exports = mongoose.model('order', OrderSchema);
