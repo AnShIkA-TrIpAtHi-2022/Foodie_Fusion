@@ -3,11 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import salad from "../assets/salad_plate.png";
 import rest from "../assets/rest_plate.png";
 import Button from "../components/Button";
+import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 export default function LoginSignupPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signupData, setSignupData] = useState({ name: "", email: "", contact: "", password: "", confirmPassword: "" });
+  
+  const navigate = useNavigate()
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -21,19 +25,30 @@ export default function LoginSignupPage() {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
+    const { email, password } = loginData;
+    navigate('/home')
+    
     console.log("Login submitted:", loginData);
   };
 
   const handleSignupSubmit = (e) => {
     e.preventDefault();
+
+    const { name, email, password, confirmPassword } = signupData;
     if (signupData.password !== signupData.confirmPassword) {
       alert("Passwords do not match");
       return;
     }
+    axios.post('http://localhost:3000/register', {name,email,password})
+    .then(result => {console.log(result)
+      navigate('/login')
+    })
+    .catch(err => console.log(err))
     console.log("Signup submitted:", signupData);
   };
 
   return (
+    
     <motion.div
       className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-8"
       animate={{ 

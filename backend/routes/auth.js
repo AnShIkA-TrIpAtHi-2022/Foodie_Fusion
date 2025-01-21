@@ -1,6 +1,6 @@
 const express = require('express');
 const {body} = require('express-validator');
-const authCOntroller = require('../controllers/auth');
+const authController = require('../controllers/auth');
 const router = express.Router();
 
 router.put('/signup-Restaurant',[
@@ -15,7 +15,7 @@ router.put('/signup-Restaurant',[
         .trim()
         .not()
         .isEmpty()
-], authCOntroller.signupRestaurant);
+], authController.signupRestaurant);
 
 router.put('/signup-Customer',[
     body('phoneNumber')

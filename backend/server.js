@@ -3,6 +3,8 @@ const app = require('./app.js');
 const connectDB = require('./db/config.js');
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
+
 const {DB_NAME, mongoDBID, PORT} = require('./db/constants.js');
 // const app = express();
 

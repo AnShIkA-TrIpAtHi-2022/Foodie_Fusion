@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const UserSchema = new Schema({
     id:{
-        type:ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         required:true
     },
     name:{
@@ -36,11 +36,11 @@ const UserSchema = new Schema({
         items:[
             {
                 menuId:{
-                    type:ObjectId,
+                    type:mongoose.Schema.Types.ObjectId,
                     required:true
                 },
                 restaurantId:{
-                    type:ObjectId,
+                    type:mongoose.Schema.Types.ObjectId,
                     required:true
                 },
                 quantity:{
