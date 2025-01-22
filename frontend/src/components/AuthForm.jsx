@@ -3,14 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import salad from "../assets/salad_plate.png";
 import rest from "../assets/rest_plate.png";
 import Button from "../components/Button";
-import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 
-export default function LoginSignupPage() {
-  const [isLogin, setIsLogin] = useState(true);
+const LoginSignupPage = ({mode}) => {
+  const [isLogin, setIsLogin] = useState(mode == 'login');
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [signupData, setSignupData] = useState({ name: "", email: "", contact: "", password: "", confirmPassword: "" });
-  
+  const [signupData, setSignupData] = useState({ name: "", email: "", contact: "", password: "", confirmPassword: "", userType: "customer" });
   const navigate = useNavigate()
 
   const handleLoginChange = (e) => {
@@ -27,28 +25,38 @@ export default function LoginSignupPage() {
     e.preventDefault();
     const { email, password } = loginData;
     navigate('/home')
-    
     console.log("Login submitted:", loginData);
   };
 
   const handleSignupSubmit = (e) => {
     e.preventDefault();
 
-    const { name, email, password, confirmPassword } = signupData;
-    if (signupData.password !== signupData.confirmPassword) {
+    const { name, email, contact, password, confirmPassword, userType } = signupData;
+    if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
-    axios.post('http://localhost:3000/register', {name,email,password})
-    .then(result => {console.log(result)
-      navigate('/login')
+
+    fetch('http://localhost:4000/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name, email, contact, password, userType })
     })
-    .catch(err => console.log(err))
+      .then(response => response.json())
+      .then(result => {
+        console.log(result);
+        navigate('/');
+      })
+      .catch(err => {
+        console.log(err);
+      });
+
     console.log("Signup submitted:", signupData);
   };
 
   return (
-    
     <motion.div
       className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-8"
       animate={{ 
@@ -56,14 +64,13 @@ export default function LoginSignupPage() {
           ? "linear-gradient(180deg, rgba(187,165,143,1) 0%, rgba(232,217,205,1) 25%, rgba(255,255,255,1) 49%, rgba(232,217,205,1) 73%, rgba(187,165,143,1) 100%)"
           : "linear-gradient(180deg, rgba(34,48,48,1) 0%, rgba(149,157,144,1) 50%, rgba(34,48,48,1) 100%)"
       }}
-      
       transition={{ duration: 0.5 }}
     >
       {/* Plate Image with Rotation */}
       <motion.img
         src={isLogin ? salad : rest}
         alt="plate"
-        className={`absolute -left-64 top-20 h-3/4 ${isLogin ? "drop-shadow-[0_0_10px_black]" : "drop-shadow-[0_0_10px_white]"}`}
+        className={`absolute -top-64 md:-left-64 md:top-20 h-3/4 ${isLogin ? "drop-shadow-[0_0_10px_black]" : "drop-shadow-[0_0_10px_white]"}`}
         animate={{ rotate: isLogin ? 0 : 180 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
       />
@@ -170,6 +177,33 @@ export default function LoginSignupPage() {
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                
+                {/* User Type Selection */}
+                <div className="flex items-center space-x-4">
+                  <label>
+                    <input
+                      type="radio"
+                      name="userType"
+                      value="customer"
+                      checked={signupData.userType === "customer"}
+                      onChange={handleSignupChange}
+                      className="mr-2"
+                    />
+                    Customer
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="userType"
+                      value="restaurant"
+                      checked={signupData.userType === "restaurant"}
+                      onChange={handleSignupChange}
+                      className="mr-2"
+                    />
+                    Restaurant
+                  </label>
+                </div>
+                
                 <Button text="Sign Up" className="w-full bg-brown text-white !shadow-[4px_4px_0_rgba(187,165,143,1)] hover:bg-darkBrown hover:shadow-[5px_5px_0_brown] hover:text-white transition-all duration-300" />
               </form>
             </motion.div>
@@ -180,10 +214,12 @@ export default function LoginSignupPage() {
       <motion.img
         src={isLogin ? salad : rest}
         alt="plate"
-        className={`absolute -right-64 top-20 h-3/4 ${isLogin ? "drop-shadow-[0_0_10px_black]" : "drop-shadow-[0_0_10px_white]"}`}
+        className={`absolute -bottom-64 md:-right-64 md:top-20 h-3/4 ${isLogin ? "drop-shadow-[0_0_10px_black]" : "drop-shadow-[0_0_10px_white]"}`}
         animate={{ rotate: isLogin ? 0 : 180 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
       />
     </motion.div>
   );
 }
+
+export default LoginSignupPage;

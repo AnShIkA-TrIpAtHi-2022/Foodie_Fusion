@@ -1,10 +1,10 @@
 const mongoose = require('mongoose')
 
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 
 const RestaurantSchema = new Schema({
     id:{
-        type:ObjectId,
+        type:Types.ObjectId,
         required:true
     },
     name:{
@@ -20,7 +20,7 @@ const RestaurantSchema = new Schema({
         required:true
     },
     menu:{
-        type:ObjectId,
+        type:Types.ObjectId,
         required:true
     },
     ratings:{
