@@ -6,18 +6,23 @@ const Customer = require('../db/models/Users');
 const ApiError = require('../utils/ApiError');
 const ApiResponse = require('../utils/ApiResponse');
 
+dotenv.config({ path: './env' });
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRETKEY, { expiresIn: '1d' });
 };
-
+ 
 // Signup Controller
 exports.signup = async (req, res, next) => {
   const { name, email, contact, password, userType } = req.body;
+  console.log(req.body);
 
   try {
     const Model = userType === 'restaurant' ? Restaurant : Customer;
+    console.log(Model);
 
     const existingUser = await Model.findOne({ contact });
+    console.log("Existing = " + existingUser);
     if (existingUser) {
       throw new ApiError(400, `${userType} already registered with this phone number!`);
     }

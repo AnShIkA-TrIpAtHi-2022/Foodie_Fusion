@@ -28,7 +28,7 @@ const LoginSignupPage = ({mode}) => {
     console.log("Login submitted:", loginData);
   };
 
-  const handleSignupSubmit = (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
 
     const { name, email, contact, password, confirmPassword, userType } = signupData;
@@ -36,20 +36,18 @@ const LoginSignupPage = ({mode}) => {
       alert("Passwords do not match");
       return;
     }
+    setIsLogin(true);
+    navigate('/login');
 
     fetch('http://localhost:4000/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name, email, contact, password, userType })
-    })
-      .then(response => response.json())
-      .then(result => {
+      body: JSON.stringify(signupData),
+    }).then(response => response.json()).then(result => {
         console.log(result);
-        navigate('/');
-      })
-      .catch(err => {
+      }).catch(err => {
         console.log(err);
       });
 
@@ -80,7 +78,11 @@ const LoginSignupPage = ({mode}) => {
         {/* Toggle Button */}
         <div className="absolute top-4 right-4 z-10">
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              if(isLogin) navigate('/register');
+              else navigate('/login');
+            }}
             className="text-brown hover:text-darkGreen transition-colors"
           >
             {isLogin ? "Create Account" : "Login"}
