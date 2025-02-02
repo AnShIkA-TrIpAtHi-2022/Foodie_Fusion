@@ -1,4 +1,4 @@
-const  mongoose = require('mongoose');
+ const  mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const {DB_NAME, mongoDBID, PORT} = require('./constants.js');
 
@@ -10,7 +10,11 @@ const connectDB = async () => {
         if (!mongoURI) {
             throw new Error("MONGODB_URI is not defined in the .env file");
         }
-
+        await mongoose.connect(mongoURI, {
+            
+            dbName: DB_NAME
+        });
+ 
         console.log(
             "\nMongoDB connected!"
         );

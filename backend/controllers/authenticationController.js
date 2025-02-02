@@ -11,7 +11,7 @@ dotenv.config({ path: './env' });
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRETKEY, { expiresIn: '1d' });
 };
- 
+  
 // Signup Controller
 exports.signup = async (req, res, next) => {
   const { name, email, contact, password, userType } = req.body;

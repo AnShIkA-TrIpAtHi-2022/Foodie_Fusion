@@ -1,9 +1,16 @@
 const express = require('express');
+const cors=require('cors');
+const bodyParser=require('body-parser'); 
 require('dotenv').config();
-const cors = require('cors');
+
 
 const app = express();
-app.use(express.json())
+
+const homeRouter=require('./routes/homeRoutes')
+app.use("/",homeRouter)
+
 app.use(cors());
+app.use(bodyParser.json())
+
 
 module.exports = app;
