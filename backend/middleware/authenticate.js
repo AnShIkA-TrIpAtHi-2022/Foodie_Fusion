@@ -3,7 +3,7 @@ const userService = require("../service/userService");
 const authenticate=async(req,res,next)=>{
     //bearer token
     try{
-         const token=req.headers.authorization.splite(" ")[1]
+         const token=req.headers.authorization?.splite(" ")[1]
          if(!token){
             return res.status(401).json({message:"No token provided"});
          }
