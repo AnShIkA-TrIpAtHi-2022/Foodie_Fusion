@@ -3,8 +3,8 @@ const bcrypt = require("bcryptjs");
 module.exports={
     async createUser(userData){
         try{
-            let {fullName, emailValue, password, role} = userData;
-            const isUserExist = await User.findOne({email:emailValue});
+            let {fullName, email, password, role} = userData;
+            const isUserExist = await User.findOne({email:email});
             
             if(isUserExist){
                 throw new Error("User already exists with email",email);
@@ -13,7 +13,7 @@ module.exports={
             password = await bcrypt.hash(password,8);
             const user = await User.create({
                 fullName,
-                email: emailValue,
+                email: email,
                 password:password,
                 role
             });
