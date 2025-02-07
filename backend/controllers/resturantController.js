@@ -1,9 +1,9 @@
-const resturantService=require("../service/RestaurantService");
+const resturantService=require("../service/RestaurantService.js");
 module.exports={
     createResturant:async(req,res)=>{
         try{
            const user=req.user;
-           const resturant=await restaurantService.createResturant(req.body,user)
+           const resturant=await RestaurantService.createResturant(req.body,user)
         }
         catch(error){
             res.status(400).send({error:error.message})
