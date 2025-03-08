@@ -1,4 +1,4 @@
-const { createIngredientsCategory, updateStoke } = require("../service/ingredient.service");
+//const { createIngredientsCategory, updateStock } = require("../service/ingredient.service");
 const ingredientService=require("../services/ingredient.service.js");
 module.exports={
     createIngredientCategory:async (req,res)=>{
@@ -25,10 +25,10 @@ createIngredient:async(req,res)=>{
         res.status(500).json({error:true,message:error.message});
     }
 },
-updateStoke:async(req,res)=>{
+updateStock:async(req,res)=>{
     try{
         const{id}=req.params;
-        const item=await ingredientService.updateStoke(id);
+        const item=await ingredientService.updateStock(id);
         res.status(200).json(item);
     }
     catch(error){

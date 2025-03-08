@@ -1,4 +1,4 @@
-const IngredientCategory=require("../models/ingredientCategory.model.js");
+const IngredientCategory = require("../models/ingredientCategory.model.js");
 const IngredientsItem=require("../models/ingredientItem.model.js");
 const Restaurant=require("../models/restaurant.model.js");
 
@@ -98,13 +98,13 @@ async createIngredientsItem(
         throw new Error(`Failed to create ingredients item:${error.message}`); 
     }
 },
-async updateStoke(id){
+async updateStock(id){
      try{
         const item=await IngredientsItem.findById(id).populate("category");
         if(!item){
             throw new Error(`Ingredient not found with ID ${id}`);
      }
-     item.inStoke=!item.inStoke;
+     item.inStock=!item.inStock;
      await item.save();
      return item;
 }

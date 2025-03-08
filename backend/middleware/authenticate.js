@@ -1,14 +1,16 @@
-const userService = require("../service/userService");
+const userService = require("../services/user.service");
+const { getUserIdFromToken } = require("../db/jwtProvider");
+
 
 const authenticate=async(req,res,next)=>{
     //bearer token
     try{
-         const token=req.headers.authorization?.splite(" ")[1]
+         const token=req.headers.authorization?.split(" ")[1]
          if(!token){
             return res.status(401).json({message:"No token provided"});
          }
          const userId=getUserIdFromToken(token);
-         const user=userService.findUserById(userId);
+         const user= await userService.findUserById(userId);
          req.user=user;
          
     }
@@ -17,3 +19,5 @@ const authenticate=async(req,res,next)=>{
     }
     next();
 }
+
+module.exports = authenticate;

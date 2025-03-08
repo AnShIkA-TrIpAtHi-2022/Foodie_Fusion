@@ -1,5 +1,5 @@
-const categoryService=require("../service/category.service");
-const userService=require("../service/user.service");
+const categoryService = require("../services/category.service");
+const userService=require("../services/user.service");
 module.exports={
     async createCategory(req,res){
         try{
@@ -28,8 +28,7 @@ module.exports={
         catch(error){
             if(error instanceof Error){
                 res.status(400).json({error:error.message});
-        }
-        else{
+            }else{
             res.status(500).json({error:"Internal server error"});
         }
     }

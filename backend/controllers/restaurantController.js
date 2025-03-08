@@ -1,4 +1,4 @@
-const resturantService=require("../service/RestaurantService.js");
+const resturantService=require("../services/restaurant.service.js");
 module.exports={
     createResturant:async(req,res)=>{
         try{

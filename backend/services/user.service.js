@@ -1,4 +1,5 @@
 const User = require("../models/user.model")
+const { getUserIdFromToken } = require("../db/jwtProvider");
 const bcrypt = require("bcryptjs");
 module.exports={
     async createUser(userData){
@@ -40,14 +41,14 @@ module.exports={
 
     async findUserById(userId){
         try{
-            const user = await User.findById(userId).populate("addresses");
+            const user = await User.findById(userId);
 
             if(!user){
                 throw new Error("User not found with ID", userId);
             }
             return user;
         }catch(error){
-            throw new Error("error.message")
+            throw new Error(error.message)
         }
     },
 

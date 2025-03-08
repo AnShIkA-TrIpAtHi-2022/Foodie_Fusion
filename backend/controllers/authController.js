@@ -1,5 +1,5 @@
 const { generateToken } = require("../db/jwtProvider");
-const userService = require("../service/userServices");
+const userService = require("../services/user.service");
 const bcrypt = require("bcryptjs");
 
 const register = async(req, res)=>{
@@ -28,7 +28,7 @@ const login = async (req, res)=>{
         const jwt = generateToken(user._id);
         return res.status(200).send({jwt, message:"login success"})
     }catch(error){
-        return res.send(500).send({error:error.message})
+        return res.status(500).send({error:error.message})
     }
 }
 
