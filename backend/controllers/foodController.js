@@ -31,6 +31,15 @@ module.exports = {
         }
     },
 
+    getAllFood: async (req, res) => {
+        try {
+            const foodItems = await foodService.getAllFood();
+            res.status(200).json(foodItems);
+        } catch (error) {
+            res.status(500).json({ error: "Internal server error" });
+        }
+    },
+
     // Admin Controller
     createItem: async (req, res) => {
         try {

@@ -20,10 +20,9 @@ module.exports={
             },
         ]);
         if(!cart){
-            throw new Error("Cart not found u -",userId);
+            cart = await this.createCart(userId);
         }
         let cartItems=await CartItem.find({cart:cart._id}).populate("food");
-        console.log("cartItems",cartItems);
 
         let totalPrice=0;;
         let totalDiscountedPrice=0;
@@ -44,28 +43,45 @@ module.exports={
 
     },
     async addItemToCart(req,userId){
+        console.log("Adding item to cart for user:", userId); // Debugging
         const cart=await Cart.findOne({customer:userId});
-        const food=await Food.findById(req.menuItemId);
+        console.log("Cart found:", cart); // Debugging
 
-        const isPresent =await CartItem.findOne({
-            cart:cart._id,
-            food:food._id,
+        const food = await Food.findById(req.menuItemId);
+        console.log("Food item found:", food); // Debugging
+
+        if (!food) {
+            console.error("Food item not found with ID:", req.menuItemId); // Debugging
+            throw new Error(`Food item with ID ${req.menuItemId} not found.`);
+        }
+
+        const isPresent = await CartItem.findOne({
+            cart: cart._id,
+            food: food._id,
             userId,
         });
-        if(!isPresent){
-            const cartItem=new CartItem({
-                food:food._id,
-                cart:cart._id,
-                quantity:1,
+        console.log("Is item already in cart:", isPresent); // Debugging
+
+        if (!isPresent) {
+            const cartItem = new CartItem({
+                food: food._id,
+                cart: cart._id,
+                quantity: 1,
                 userId,
-                totalPrice:food.price,
+                totalPrice: food.price,
             });
-            
-            const createdCartItem=await cartItem.save();
+
+            const createdCartItem = await cartItem.save();
+            console.log("New cart item created:", createdCartItem); // Debugging
+
             cart.items.push(createdCartItem);
-            awaitcart.save();
+            await cart.save();
+            console.log("Cart updated with new item:", cart); // Debugging
+
             return createdCartItem;
         }
+
+        console.log("Item already exists in cart:", isPresent); // Debugging
         return isPresent;
     },
     async updateCartItemQuantity(cartItemId,quantity){

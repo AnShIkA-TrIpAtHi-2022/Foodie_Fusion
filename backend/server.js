@@ -10,10 +10,13 @@ dotenv.config({ path: './env' });
 const PORT = process.env.PORT || 4005;
 
 
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/',authRoutes);
+app.use('/food', require('./routes/menuItemRoutes.js'));
+app.use('/cart', require('./routes/cartRoutes.js'));
+app.use('/cart-item', require('./routes/cartItemRoutes.js'));
 
 connectDB()
   .then(() => {

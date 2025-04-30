@@ -97,7 +97,7 @@ async updateAvailabilityStatus(foodId){
             },
             "foodCategory",
             {
-                path:"restaurant",select:"name_id"
+                path:"restaurant",select:"name _id"
             },
         ]);
         if(!food){
@@ -120,10 +120,17 @@ async findFoodById(foodId){
     return food;
 }
 catch(error){
-    throw new Error(        `Failed to find food with ID ${foodId}:${error.message} `);
+    throw new Error(`Failed to find food with ID ${foodId}:${error.message} `);
     
 }
 },
-
+async getAllFood() {
+    try {
+        const foods = await Food.find();
+        return foods;
+    } catch (error) {
+        throw new Error(`Failed to retrieve all food items: ${error.message}`);
+    }
+},
 
 };

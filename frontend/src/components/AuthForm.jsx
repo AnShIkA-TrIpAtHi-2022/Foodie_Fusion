@@ -21,10 +21,21 @@ const LoginSignupPage = ({mode}) => {
     setSignupData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = loginData;
-    navigate('/home')
+    await fetch('http://localhost:4000/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(loginData),
+    }).then(response => response.json()).then(result => {
+        console.log(result);
+        navigate('/landing')
+      }).catch(err => {
+        console.log(err);
+      });
     console.log("Login submitted:", loginData);
   };
 
@@ -37,9 +48,9 @@ const LoginSignupPage = ({mode}) => {
       return;
     }
     setIsLogin(true);
-    navigate('/login');
+    navigate('/');
 
-    fetch('http://localhost:4000/register', {
+    fetch('http://localhost:4000/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
