@@ -1,88 +1,52 @@
-const foodService = require("../services/food.service.js");
-const restaurantService = require("../services/restaurant.service.js");
-const userService = require("../services/user.service.js");
+import foodModel from "../models/foodModel.js";
+import fs from 'fs'
 
-module.exports = {
-    // Customer Controller
-    searchFood: async (req, res) => {
-        try {
-            const { name } = req.query;
-            const menuItems = await foodService.searchFood(name);
-            res.status(200).json(menuItems);
-        } catch (error) {
-            res.status(500).json({ error: "Internal server error" });
-        }
-    },
+const listFood = async (req, res) => {
+    try {
+        const foods = await foodModel.find({})
+        res.json({ success: true, data: foods })
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" })
+    }
 
-    getMenuItemByRestaurantId: async (req, res) => {
-        try {
-            const { restaurantId } = req.params;
-            const { vegetarian, seasonal, nonveg, food_category } = req.query;
-            const menuItems = await foodService.getRestaurantsFood(
-                restaurantId, vegetarian, seasonal, nonveg, food_category
-            );
-            res.status(200).json(menuItems);
-        } catch (error) {
-            if (error instanceof Error) {
-                res.status(400).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: "Internal server error" });
-            }
-        }
-    },
+}
 
-    getAllFood: async (req, res) => {
-        try {
-            const foodItems = await foodService.getAllFood();
-            res.status(200).json(foodItems);
-        } catch (error) {
-            res.status(500).json({ error: "Internal server error" });
-        }
-    },
+const addFood = async (req, res) => {
 
-    // Admin Controller
-    createItem: async (req, res) => {
-        try {
-            const item = req.body;
-            const restaurant = await restaurantService.findRestaurantById(
-                item.restaurantId
-            );
-            const menuItem = await foodService.createFood(item, restaurant);
-            res.status(200).json(menuItem);
-        } catch (error) {
-            if (error instanceof Error) {
-                res.status(400).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: "Internal server error" });
-            }
-        }
-    },
+    try {
+        let image_filename = `${req.file.filename}`
 
-    deleteItem: async (req, res) => {
-        try {
-            const { id } = req.params;
-            await foodService.deleteFood(id);
-            res.status(200).json({ message: "Menu item deleted" });
-        } catch (error) {
-            if (error instanceof Error) {
-                res.status(400).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: "Internal server error" });
-            }
-        }
-    },
+        const food = new foodModel({
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            category:req.body.category,
+            image: image_filename,
+        })
 
-    updateAvailabilityStatus: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const menuItem = await foodService.updateAvailabilityStatus(id);
-            res.status(200).json(menuItem);
-        } catch (error) {
-            if (error instanceof Error) {
-                res.status(400).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: "Internal server error" });
-            }
-        }
-    },
-};
+        await food.save();
+        res.json({ success: true, message: "Food Added" })
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" })
+    }
+}
+
+const removeFood = async (req, res) => {
+    try {
+
+        const food = await foodModel.findById(req.body.id);
+        fs.unlink(`uploads/${food.image}`, () => { })
+
+        await foodModel.findByIdAndDelete(req.body.id)
+        res.json({ success: true, message: "Food Removed" })
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" })
+    }
+
+}
+
+export { listFood, addFood, removeFood }

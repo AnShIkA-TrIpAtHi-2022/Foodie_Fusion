@@ -1,71 +1,142 @@
-const orderService = require("../services/order.service.js");
-const userService = require("../services/user.service.js");
+import orderModel from "../models/orderModel.js";
+import userModel from "../models/userModel.js"
+import Stripe from "stripe";
+const stripe = new Stripe("sk");
 
-module.exports = {
-    // Customer order controllers
-    createOrder: async (req, res) => {
-        try {
-            const order = req.body;
-            const user = req.user;
-            
-            const paymentResponse = await orderService.createOrder(order, user);
-            res.status(200).json(paymentResponse);
-        } catch (error) {
-            res.status(error instanceof Error ? 400 : 500).json({
-                message: error instanceof Error ? error.message : "Internal Server Error",
-            });
+
+const currency = "inr";
+const deliveryCharge = 50;
+const frontend_URL = 'http://localhost:5173';
+
+
+const placeOrder = async (req, res) => {
+
+    try {
+        const newOrder = new orderModel({
+            userId: req.body.userId,
+            items: req.body.items,
+            amount: req.body.amount,
+            address: req.body.address,
+        })
+        await newOrder.save();
+        await userModel.findByIdAndUpdate(req.body.userId, { cartData: {} });
+
+        const line_items = req.body.items.map((item) => ({
+            price_data: {
+                currency: currency,
+                product_data: {
+                    name: item.name
+                },
+                unit_amount: item.price * 100 
+            },
+            quantity: item.quantity
+        }))
+
+        line_items.push({
+            price_data: {
+                currency: currency,
+                product_data: {
+                    name: "Delivery Charge"
+                },
+                unit_amount: deliveryCharge * 100
+            },
+            quantity: 1
+        })
+
+        const session = await stripe.checkout.sessions.create({
+            success_url: `${frontend_URL}/verify?success=true&orderId=${newOrder._id}`,
+            cancel_url: `${frontend_URL}/verify?success=false&orderId=${newOrder._id}`,
+            line_items: line_items,
+            mode: 'payment',
+        });
+
+        res.json({ success: true, session_url: session.url });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" })
+    }
+}
+
+
+const placeOrderCod = async (req, res) => {
+    try {
+        console.log('Request Body:', req.body); // Log the incoming request body
+
+        const { items, amount, address, userId } = req.body;
+
+        if (!items || !amount || !address || !userId) {
+            console.error('Missing required fields:', { items, amount, address, userId });
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
-    },
 
-    getAllUserOrders: async (req, res) => {
-        try {
-            const user = req.user;
-            const userOrders = await orderService.getUserOrders(user._id);
-            res.status(200).json(userOrders);
-        } catch (error) {
-            res.status(error instanceof Error ? 400 : 500).json({
-                message: error instanceof Error ? error.message : "Internal Server Error",
-            });
-        }
-    },
+        const newOrder = new orderModel({
+            items,
+            amount,
+            address,
+            userId,
+            paymentMethod: 'COD',
+            status: 'Pending',
+        });
 
-    // Admin order controllers
-    deleteOrder: async (req, res) => {
-        try {
-            const { orderId } = req.params;
-            await orderService.cancelOrder(orderId);
-            res.status(200).json({ message: `Order deleted with ID ${orderId}` });
-        } catch (error) {
-            res.status(error instanceof Error ? 400 : 500).json({
-                message: error instanceof Error ? error.message : "Internal Server Error",
-            });
-        }
-    },
+        await newOrder.save();
+        console.log('Order saved successfully:', newOrder);
 
-    getAllRestaurantOrders: async (req, res) => {
-        try {
-            const { restaurantId } = req.params;
-            const { order_status } = req.query;
-            const orders = await orderService.getOrdersOfRestaurant(restaurantId, order_status);
-            res.status(200).json(orders);
-        } catch (error) {
-            res.status(error instanceof Error ? 400 : 500).json({
-                message: error instanceof Error ? error.message : "Internal Server Error",
-            });
-        }
-    },
-
-    updateOrder: async (req, res) => {
-        try {
-            const { orderId } = req.params;
-            const { orderStatus } = req.body;
-
-            const order = await orderService.updateOrder(orderId, orderStatus);
-            res.status(200).json(order);
-        } catch (error) {
-            res.status(error instanceof Error ? 400 : 500).json({
-                message: error instanceof Error ? error.message : "Internal Server Error",
-            });
-        }
-    },
+        res.status(201).json({ success: true, message: 'Order placed successfully', order: newOrder });
+    } catch (error) {
+        console.error('Error placing order:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 };
+
+
+const listOrders = async (req, res) => {
+    try {
+        const orders = await orderModel.find({});
+        res.json({ success: true, data: orders })
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" })
+    }
+}
+
+
+const userOrders = async (req, res) => {
+    try {
+        const orders = await orderModel.find({ userId: req.body.userId });
+        res.json({ success: true, data: orders })
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" })
+    }
+}
+
+const updateStatus = async (req, res) => {
+    console.log(req.body);
+    try {
+        await orderModel.findByIdAndUpdate(req.body.orderId, { status: req.body.status });
+        res.json({ success: true, message: "Status Updated" })
+    } catch (error) {
+        res.json({ success: false, message: "Error" })
+    }
+
+}
+
+const verifyOrder = async (req, res) => {
+    const { orderId, success } = req.body;
+    try {
+        if (success === "true") {
+            await orderModel.findByIdAndUpdate(orderId, { payment: true });
+            res.json({ success: true, message: "Paid" })
+        }
+        else {
+            await orderModel.findByIdAndDelete(orderId)
+            res.json({ success: false, message: "Not Paid" })
+        }
+    } catch (error) {
+        res.json({ success: false, message: "Not  Verified" })
+    }
+
+}
+
+export { placeOrder, listOrders, userOrders, updateStatus, verifyOrder, placeOrderCod }

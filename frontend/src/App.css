@@ -1,0 +1,15 @@
+body {
+  background-color: #1e1e2f; /* Brighter dark background */
+  color: #e0e0e0; /* Brighter text */
+}
+
+/* Update other global styles */
+a {
+  color: #ff8c00; /* Bright orange for links */
+}
+
+hr {
+  background-color: #44475a; /* Slightly brighter divider */
+}
+
+/* Add more global styles as needed */

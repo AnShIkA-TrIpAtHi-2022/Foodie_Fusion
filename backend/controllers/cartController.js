@@ -1,101 +1,51 @@
-const cartService=require("../services/cart.service");
-const userService=require("../services/user.service");
+import userModel from "../models/userModel.js"
 
-module.exports={
-    addItemToCart:async(req,res)=>{
-        try{
-            console.log("Adding item to cart for user:", req.user); // Debugging
-            const user=req.user;
-            const cart=await cartService.addItemToCart(req.body,user._id);
-            console.log("Cart updated successfully:", cart); // Debugging
-            res.status(200).json(cart);
-        }
-        catch(error){
-            console.error("Error in addItemToCart:", error); // Debugging
-            if( error instanceof Error){
-                res.status(400).json({ error:error.message});
-            }
-            else{
-                res.status(500).json({ error:"Internal server error"});
-            }
-        }
-    },
-    updateCartItemQuantity:async(req,res)=>{
-        try{
-            console.log("Updating cart item quantity:", req.body); // Debugging
-            const{cartItemId,quantity}=req.body;
-            const cart=await cartService.updateCartItemQuantity(
-                cartItemId,
-                quantity
-            );
-            console.log("Cart item quantity updated successfully:", cart); // Debugging
-            res.status(200).json(cart);
-        }
-        catch(error){
-            console.error("Error in updateCartItemQuantity:", error); // Debugging
-            if( error instanceof Error){
-                res.status(400).json({ error:error.message});
-            }
-            else{
-                res.status(500).json({ error:"Internal server error"});
-            }
-        }
-    },
-    removeItemFromCart:async(req,res)=>{
-        try{
-            console.log("Removing item from cart:", req.params.id); // Debugging
-            const { id}=req.params;
-            const user=req.user;
-            const cart=await cartService.removeItemFromCart(id,user);
-            console.log("Item removed from cart successfully:", cart); // Debugging
-            res.status(200).json(cart);
-        }
-        catch(error){
-            console.error("Error in removeItemFromCart:", error); // Debugging
-            if( error instanceof Error){
-                res.status(400).json({ error:error.message});
-            }
-            else{
-                res.status(500).json({ error:"Internal server error"});
-            }
-        }
-    },
-    findUserCart:async(req,res)=>{
-        try{
-            console.log("Fetching cart for user:", req.user); // Debugging
-            const user=req.user;
-            const cart=await cartService.findCartByUserId(user._id.toString());
-            console.log("User cart fetched successfully:", cart); // Debugging
-            res.status(200).json(cart);
-        }
-        catch(error){
-            console.error("Error in findUserCart:", error); // Debugging
-            if( error instanceof Error){
-                res.status(400).json({ error:error.message});
-            }
-            else{
-                res.status(500).json({ error:"Internal server error"});
-            }
 
-        }
-    },
-    clearCart:async(req,res)=>{
-        try{
-            console.log("Clearing cart for user:", req.user); // Debugging
-            const user=req.user;
-            const cart=await cartService.clearCart(user);
-            console.log("Cart cleared successfully:", cart); // Debugging
-            res.status(200).json(cart);
-        }
-        catch(error){
-            console.error("Error in clearCart:", error); // Debugging
-            if( error instanceof Error){
-                res.status(400).json({ error:error.message});
-            }
-            else{
-                res.status(500).json({ error:"Internal server error"});
-            }
+const addToCart = async (req, res) => {
+   try {
+      let userData = await userModel.findOne({_id:req.body.userId});
+      let cartData = await userData.cartData;
+      if (!cartData[req.body.itemId]) {
+         cartData[req.body.itemId] = 1;
+      }
+      else {
+         cartData[req.body.itemId] += 1;
+      }
+      await userModel.findByIdAndUpdate(req.body.userId, {cartData});
+      res.json({ success: true, message: "Added To Cart" });
+   } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: "Error" })
+   }
+}
 
-        }
-    },
-};
+const removeFromCart = async (req, res) => {
+   try {
+      let userData = await userModel.findById(req.body.userId);
+      let cartData = await userData.cartData;
+      if (cartData[req.body.itemId] > 0) {
+         cartData[req.body.itemId] -= 1;
+      }
+      await userModel.findByIdAndUpdate(req.body.userId, {cartData});
+      res.json({ success: true, message: "Removed From Cart" });
+   } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: "Error" })
+   }
+
+}
+
+
+const getCart = async (req, res) => {
+   try {
+      let userData = await userModel.findById(req.body.userId);
+      let cartData = await userData.cartData;
+      res.json({ success: true, cartData:cartData });
+   } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: "Error" })
+   }
+}
+
+
+export { addToCart, removeFromCart, getCart }
